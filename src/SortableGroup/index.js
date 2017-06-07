@@ -23,8 +23,7 @@ export default class SortableGroup extends Component {
       y: 0,
     },
     currentKey: null,
-    target: null,
-    rect: null,
+    target: null
   };
 
   lists = {};
@@ -37,6 +36,7 @@ export default class SortableGroup extends Component {
     const target = item.node.getBoundingClientRect();
     const event = e.touches ? e.touches[0] : e;
 
+    this.dragging = false
     this.dragInfo.target = target;
     this.dragInfo.currentKey = key;
     this.dragInfo.delta = {
@@ -48,6 +48,10 @@ export default class SortableGroup extends Component {
   onSortMove = e => {
     const event = e.touches ? e.touches[0] : e;
 
+    if (this.dragging === false) {
+      this.dragging = true
+    }
+
     this.dragInfo.pageX = event.pageX;
     this.dragInfo.pageY = event.pageY;
 
@@ -56,6 +60,14 @@ export default class SortableGroup extends Component {
 
   onSortEnd = ({oldIndex, newIndex}) => {
     const {currentKey, delta, pageX, pageY, target} = this.dragInfo;
+
+    // No drag, return early
+    if (this.dragging === false) {
+      return false
+    }
+
+    this.dragging = false
+
     const targetRect = translateRect(pageX + delta.x, pageY + delta.y, target);
     const t = center(targetRect);
     const closestKey = this.closestContainer(t.x, t.y);
